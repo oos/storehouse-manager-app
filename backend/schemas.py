@@ -396,3 +396,73 @@ class TokenData(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+# Additional schemas for new features
+class PackingSession(BaseModel):
+    id: int
+    packing_list_id: int
+    session_date: datetime
+    status: str
+    notes: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class PackingSessionCreate(BaseModel):
+    packing_list_id: int
+    session_date: datetime
+    status: str = "scheduled"
+    notes: Optional[str] = None
+
+class FoodBox(BaseModel):
+    id: int
+    family_id: int
+    packing_session_id: int
+    box_number: str
+    status: str
+    special_requirements: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class FoodBoxCreate(BaseModel):
+    family_id: int
+    packing_session_id: int
+    box_number: str
+    status: str = "packed"
+    special_requirements: Optional[str] = None
+
+class FoodBoxUpdate(BaseModel):
+    status: Optional[str] = None
+    special_requirements: Optional[str] = None
+
+class CommunicationTemplate(BaseModel):
+    id: int
+    name: str
+    subject: str
+    message: str
+    recipient_type: str
+    communication_type: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class CommunicationTemplateCreate(BaseModel):
+    name: str
+    subject: str
+    message: str
+    recipient_type: str
+    communication_type: str
+
+class CommunicationTemplateUpdate(BaseModel):
+    name: Optional[str] = None
+    subject: Optional[str] = None
+    message: Optional[str] = None
+    recipient_type: Optional[str] = None
+    communication_type: Optional[str] = None

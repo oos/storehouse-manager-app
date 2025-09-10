@@ -1,213 +1,215 @@
-# Storehouse Manager
+# Store House Manager
 
-A comprehensive web application for managing charity food distribution operations. This application helps volunteer-run charities manage their food distribution to families in need, including agency coordination, volunteer scheduling, inventory management, and order processing.
+A comprehensive web application for managing a volunteer-run food charity organization. Built with React (TypeScript) frontend and FastAPI (Python) backend.
 
 ## Features
 
 ### Core Functionality
-- **Agency Management**: Register and manage agencies that serve families
-- **Family Management**: Track families and their specific requirements
+- **Agency Management**: Register and manage partner agencies
+- **Family Management**: Track families served with special requirements
 - **Inventory Management**: Monitor food and hygiene item stock levels
-- **Volunteer Coordination**: Manage volunteer schedules and assignments
-- **Order Management**: Handle weekly, monthly, and quarterly supply orders
-- **Communication System**: Send messages to agencies, volunteers, and stakeholders
+- **Packing Lists**: Create and manage weekly packing lists
+- **Volunteer Management**: Schedule and assign volunteers to packing sessions
+- **Order Management**: Track food orders and deliveries
+- **Communications**: Send messages to agencies, volunteers, and families
+- **Weekly Requirements**: Agencies submit weekly family requirements
 
-### Key Workflows
-- **Weekly Cycle**: Agency requirements → Packing lists → Volunteer packing → Family collection
-- **Monthly Cycle**: Ordering extras and special items from suppliers
-- **Quarterly Cycle**: EFS+ deliveries, volunteer rotas, hygiene item management, reporting
+### Workflow Management
+- **Weekly Cycle**: Agency requirements → Packing lists → Box packing → Collection
+- **Monthly Cycle**: Ordering extra items and supplies
+- **Quarterly Cycle**: EFS+ delivery, rota management, hygiene items, reporting
 
 ## Technology Stack
 
-### Backend
-- **Python 3.8+**
-- **FastAPI** - Modern, fast web framework for building APIs
-- **SQLAlchemy** - SQL toolkit and Object-Relational Mapping (ORM)
-- **PostgreSQL** - Primary database (SQLite for development)
-- **Alembic** - Database migration tool
-- **JWT** - Authentication and authorization
-
 ### Frontend
-- **React 18** - User interface library
-- **TypeScript** - Type-safe JavaScript
-- **Material-UI (MUI)** - React component library
-- **React Router** - Client-side routing
-- **Axios** - HTTP client for API calls
+- React 18 with TypeScript
+- Material-UI (MUI) for components
+- React Router for navigation
+- Axios for API calls
+- Day.js for date manipulation
+- React Hook Form for form handling
+
+### Backend
+- FastAPI (Python 3.8+)
+- SQLAlchemy ORM
+- SQLite database (development)
+- Pydantic for data validation
+- JWT authentication
+- Uvicorn ASGI server
 
 ## Installation
 
 ### Prerequisites
-- Python 3.8 or higher
-- Node.js 16 or higher
-- PostgreSQL (for production) or SQLite (for development)
+- Node.js 16+ and npm
+- Python 3.8+
+- Git
 
 ### Backend Setup
-
-1. **Clone the repository**
+1. Navigate to the project directory:
    ```bash
-   git clone <repository-url>
    cd store-house-manager
    ```
 
-2. **Create a virtual environment**
+2. Create a virtual environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install Python dependencies**
+3. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables**
+4. Start the backend server:
    ```bash
-   cp env.example .env
-   # Edit .env with your database and secret key settings
+   python run_backend.py
    ```
-
-5. **Run database migrations**
-   ```bash
-   # For SQLite (development)
-   python -c "from backend.database import engine; from backend.models import Base; Base.metadata.create_all(bind=engine)"
-   
-   # For PostgreSQL (production)
-   # Set up your PostgreSQL database and update DATABASE_URL in .env
-   ```
-
-6. **Start the backend server**
-   ```bash
-   cd backend
-   python main.py
-   ```
-   The API will be available at `http://localhost:8000`
+   The API will be available at `http://localhost:8001`
+   API documentation at `http://localhost:8001/docs`
 
 ### Frontend Setup
-
-1. **Install Node.js dependencies**
+1. Install Node.js dependencies:
    ```bash
    npm install
    ```
 
-2. **Start the development server**
+2. Start the development server:
    ```bash
    npm start
    ```
    The application will be available at `http://localhost:3002`
 
-## Usage
+### Quick Start
+Use the provided script to start both servers:
+```bash
+chmod +x scripts/start_dev.sh
+./scripts/start_dev.sh
+```
 
-### User Roles
+## User Roles
 
-The application supports different user roles with specific permissions:
+- **Agency**: Submit weekly requirements, view family information
+- **Coordinator**: Manage all operations, review requirements
+- **Rota Manager**: Manage volunteer schedules and assignments
+- **Packing Volunteer**: View assigned packing sessions
+- **Driver**: Manage delivery schedules
+- **Resident**: View personal information and schedules
+- **Online/Physical Shopper**: Manage shopping lists and orders
 
-- **Agency**: Manages families and submits weekly requirements
-- **Coordinator**: Manages overall operations, creates packing lists, orders supplies
-- **Rota Manager**: Manages volunteer schedules
-- **Packing Volunteer**: Packs food boxes
-- **Driver**: Collects food from suppliers
-- **Resident on site**: Receives deliveries
-- **Online Shopper**: Orders items online
-- **Physical Shopper**: Buys items in person
+## API Endpoints
 
-### Key Workflows
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/register` - User registration
+- `GET /auth/me` - Get current user info
 
-#### Weekly Operations
-1. **Agencies** submit their weekly family requirements (Wednesday afternoon)
-2. **Coordinator** creates packing lists based on requirements (Wednesday night)
-3. **Rota Manager** confirms volunteer availability
-4. **Packing Volunteers** pack food boxes (Thursday before 11am)
-5. **Agencies** collect food boxes (Thursday 9:30-10:30am)
+### Agencies
+- `GET /agencies/` - List all agencies
+- `POST /agencies/` - Create new agency
+- `PUT /agencies/{id}` - Update agency
+- `DELETE /agencies/{id}` - Delete agency
 
-#### Monthly Operations
-1. **Coordinator** receives EFS+ extras list
-2. **Online Shopper** orders special items
-3. **Physical Shopper** buys mixed fruit and vegetables
-4. **Resident** receives deliveries
+### Families
+- `GET /families/` - List all families
+- `POST /families/` - Create new family
+- `PUT /families/{id}` - Update family
+- `DELETE /families/{id}` - Delete family
 
-#### Quarterly Operations
-1. **Resident** receives EFS+ delivery
-2. **Rota Manager** sets volunteer rotas
-3. **Coordinator** manages hygiene item rotas and orders
-4. **Coordinator** reports to EFS+ on families served
+### Inventory
+- `GET /items/` - List all items
+- `POST /items/` - Create new item
+- `GET /inventory-items/` - List inventory levels
+- `POST /inventory-items/` - Add inventory item
+- `PUT /inventory-items/{id}` - Update inventory
 
-## API Documentation
+### Packing Lists
+- `GET /packing-lists/` - List packing lists
+- `POST /packing-lists/` - Create packing list
+- `PUT /packing-lists/{id}` - Update packing list
+- `DELETE /packing-lists/{id}` - Delete packing list
 
-Once the backend is running, you can access the interactive API documentation at:
-- Swagger UI: `http://localhost:8001/docs`
-- ReDoc: `http://localhost:8001/redoc`
+### Weekly Requirements
+- `GET /weekly-requirements/` - List weekly requirements
+- `POST /weekly-requirements/` - Submit requirements
+- `PUT /weekly-requirements/{id}` - Update requirements
+
+### Volunteers & Rotas
+- `GET /users/?role=packing_volunteer` - List volunteers
+- `GET /rotas/` - List rotas
+- `POST /rotas/` - Create rota
+- `GET /rota-assignments/` - List assignments
+
+### Orders
+- `GET /orders/` - List orders
+- `POST /orders/` - Create order
+- `PUT /orders/{id}` - Update order
+
+### Communications
+- `GET /communications/` - List communications
+- `POST /communications/` - Send communication
+- `GET /communication-templates/` - List templates
+- `POST /communication-templates/` - Create template
 
 ## Database Schema
 
-The application uses a comprehensive database schema with the following main entities:
+The application uses SQLite for development with the following main entities:
 
-- **Users**: System users with different roles
-- **Agencies**: Organizations that serve families
-- **Families**: Individual families receiving assistance
-- **Items**: Food and hygiene items in inventory
-- **Inventory**: Current stock levels and locations
-- **Orders**: Supply orders and deliveries
-- **Packing Lists**: Weekly packing instructions
-- **Volunteers**: Volunteer assignments and schedules
+- **Users**: System users with role-based access
+- **Agencies**: Partner organizations
+- **Families**: Families served by the charity
+- **Items**: Food and hygiene items
+- **InventoryItems**: Stock levels and locations
+- **PackingLists**: Weekly packing lists
+- **PackingSessions**: Scheduled packing sessions
+- **FoodBoxes**: Individual food boxes for families
+- **Orders**: Food orders and deliveries
 - **Communications**: Messages and notifications
+- **WeeklyRequirements**: Agency weekly submissions
 
 ## Development
 
-### Running Tests
-```bash
-# Backend tests
-cd backend
-python -m pytest
-
-# Frontend tests
-npm test
+### Project Structure
+```
+store-house-manager/
+├── backend/
+│   ├── main.py              # FastAPI application
+│   ├── models.py            # SQLAlchemy models
+│   ├── schemas.py           # Pydantic schemas
+│   ├── database.py          # Database configuration
+│   └── auth.py              # Authentication logic
+├── src/
+│   ├── components/          # Reusable React components
+│   ├── pages/              # Page components
+│   ├── contexts/           # React contexts
+│   └── services/           # API services
+├── scripts/
+│   └── start_dev.sh        # Development startup script
+└── requirements.txt        # Python dependencies
 ```
 
-### Code Formatting
-```bash
-# Python
-black backend/
-isort backend/
-
-# TypeScript/React
-npm run format
-```
+### Adding New Features
+1. Add database models in `backend/models.py`
+2. Create Pydantic schemas in `backend/schemas.py`
+3. Add API endpoints in `backend/main.py`
+4. Create React components in `src/pages/`
+5. Update navigation in `src/App.tsx`
 
 ## Deployment
 
 ### Production Setup
+1. Set up PostgreSQL database
+2. Update database configuration
+3. Set environment variables
+4. Build frontend: `npm run build`
+5. Serve with production ASGI server
 
-1. **Set up PostgreSQL database**
-2. **Configure environment variables**
-3. **Run database migrations**
-4. **Build frontend**
-   ```bash
-   npm run build
-   ```
-5. **Deploy backend with a WSGI server like Gunicorn**
-6. **Set up reverse proxy with Nginx**
-
-### Docker Deployment (Optional)
-
-Docker configuration can be added for easier deployment:
-
-```dockerfile
-# Backend Dockerfile
-FROM python:3.9-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY backend/ .
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-# Frontend Dockerfile
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-CMD ["npm", "start"]
+### Environment Variables
+```bash
+DATABASE_URL=postgresql://user:password@localhost/dbname
+SECRET_KEY=your-secret-key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
 ## Contributing
@@ -215,33 +217,13 @@ CMD ["npm", "start"]
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests for new functionality
+4. Add tests if applicable
 5. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
 
 ## Support
 
 For support and questions, please contact the development team or create an issue in the repository.
-
-## Roadmap
-
-### Phase 1 (Current)
-- [x] Basic user management and authentication
-- [x] Agency and family management
-- [x] Inventory tracking
-- [x] Basic UI components
-
-### Phase 2 (Next)
-- [ ] Complete packing list management
-- [ ] Volunteer scheduling and rota management
-- [ ] Order management system
-- [ ] Communication system
-
-### Phase 3 (Future)
-- [ ] Mobile app for volunteers
-- [ ] Advanced reporting and analytics
-- [ ] Integration with external suppliers
-- [ ] Automated notifications and reminders

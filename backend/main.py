@@ -622,5 +622,234 @@ async def delete_order_item(
     db.commit()
     return {"message": "Order item deleted successfully"}
 
+# Packing Session endpoints
+@app.post("/packing-sessions/", response_model=schemas.PackingSession)
+async def create_packing_session(
+    session: schemas.PackingSessionCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_session = models.PackingSession(**session.dict())
+    db.add(db_session)
+    db.commit()
+    db.refresh(db_session)
+    return db_session
+
+@app.get("/packing-sessions/", response_model=List[schemas.PackingSession])
+async def read_packing_sessions(
+    packing_list_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    query = db.query(models.PackingSession)
+    if packing_list_id:
+        query = query.filter(models.PackingSession.packing_list_id == packing_list_id)
+    sessions = query.offset(skip).limit(limit).all()
+    return sessions
+
+# Food Box endpoints
+@app.post("/food-boxes/", response_model=schemas.FoodBox)
+async def create_food_box(
+    food_box: schemas.FoodBoxCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_food_box = models.FoodBox(**food_box.dict())
+    db.add(db_food_box)
+    db.commit()
+    db.refresh(db_food_box)
+    return db_food_box
+
+@app.get("/food-boxes/", response_model=List[schemas.FoodBox])
+async def read_food_boxes(
+    family_id: Optional[int] = None,
+    packing_session_id: Optional[int] = None,
+    status: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    query = db.query(models.FoodBox)
+    if family_id:
+        query = query.filter(models.FoodBox.family_id == family_id)
+    if packing_session_id:
+        query = query.filter(models.FoodBox.packing_session_id == packing_session_id)
+    if status:
+        query = query.filter(models.FoodBox.status == status)
+    food_boxes = query.offset(skip).limit(limit).all()
+    return food_boxes
+
+@app.put("/food-boxes/{food_box_id}", response_model=schemas.FoodBox)
+async def update_food_box(
+    food_box_id: int,
+    food_box_update: schemas.FoodBoxUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_food_box = db.query(models.FoodBox).filter(models.FoodBox.id == food_box_id).first()
+    if db_food_box is None:
+        raise HTTPException(status_code=404, detail="Food box not found")
+    
+    for field, value in food_box_update.dict(exclude_unset=True).items():
+        setattr(db_food_box, field, value)
+    
+    db.commit()
+    db.refresh(db_food_box)
+    return db_food_box
+
+# Communication endpoints
+@app.post("/communications/", response_model=schemas.Communication)
+async def create_communication(
+    communication: schemas.CommunicationCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_communication = models.Communication(**communication.dict())
+    db.add(db_communication)
+    db.commit()
+    db.refresh(db_communication)
+    return db_communication
+
+@app.get("/communications/", response_model=List[schemas.Communication])
+async def read_communications(
+    recipient_type: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    query = db.query(models.Communication)
+    if recipient_type:
+        query = query.filter(models.Communication.recipient_type == recipient_type)
+    communications = query.offset(skip).limit(limit).all()
+    return communications
+
+# Weekly Requirements endpoints
+@app.post("/weekly-requirements/", response_model=schemas.WeeklyRequirement)
+async def create_weekly_requirement(
+    requirement: schemas.WeeklyRequirementCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_requirement = models.WeeklyRequirement(**requirement.dict())
+    db.add(db_requirement)
+    db.commit()
+    db.refresh(db_requirement)
+    return db_requirement
+
+@app.get("/weekly-requirements/", response_model=List[schemas.WeeklyRequirement])
+async def read_weekly_requirements(
+    agency_id: Optional[int] = None,
+    status: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    query = db.query(models.WeeklyRequirement)
+    if agency_id:
+        query = query.filter(models.WeeklyRequirement.agency_id == agency_id)
+    if status:
+        query = query.filter(models.WeeklyRequirement.status == status)
+    requirements = query.offset(skip).limit(limit).all()
+    return requirements
+
+@app.put("/weekly-requirements/{requirement_id}", response_model=schemas.WeeklyRequirement)
+async def update_weekly_requirement(
+    requirement_id: int,
+    requirement_update: schemas.WeeklyRequirementUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_requirement = db.query(models.WeeklyRequirement).filter(models.WeeklyRequirement.id == requirement_id).first()
+    if db_requirement is None:
+        raise HTTPException(status_code=404, detail="Weekly requirement not found")
+    
+    for field, value in requirement_update.dict(exclude_unset=True).items():
+        setattr(db_requirement, field, value)
+    
+    db.commit()
+    db.refresh(db_requirement)
+    return db_requirement
+
+@app.delete("/weekly-requirements/{requirement_id}")
+async def delete_weekly_requirement(
+    requirement_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_requirement = db.query(models.WeeklyRequirement).filter(models.WeeklyRequirement.id == requirement_id).first()
+    if db_requirement is None:
+        raise HTTPException(status_code=404, detail="Weekly requirement not found")
+    
+    db.delete(db_requirement)
+    db.commit()
+    return {"message": "Weekly requirement deleted successfully"}
+
+# Communication Template endpoints
+@app.post("/communication-templates/", response_model=schemas.CommunicationTemplate)
+async def create_communication_template(
+    template: schemas.CommunicationTemplateCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_template = models.CommunicationTemplate(**template.dict())
+    db.add(db_template)
+    db.commit()
+    db.refresh(db_template)
+    return db_template
+
+@app.get("/communication-templates/", response_model=List[schemas.CommunicationTemplate])
+async def read_communication_templates(
+    recipient_type: Optional[str] = None,
+    communication_type: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    query = db.query(models.CommunicationTemplate)
+    if recipient_type:
+        query = query.filter(models.CommunicationTemplate.recipient_type == recipient_type)
+    if communication_type:
+        query = query.filter(models.CommunicationTemplate.communication_type == communication_type)
+    templates = query.offset(skip).limit(limit).all()
+    return templates
+
+@app.put("/communication-templates/{template_id}", response_model=schemas.CommunicationTemplate)
+async def update_communication_template(
+    template_id: int,
+    template_update: schemas.CommunicationTemplateUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_template = db.query(models.CommunicationTemplate).filter(models.CommunicationTemplate.id == template_id).first()
+    if db_template is None:
+        raise HTTPException(status_code=404, detail="Communication template not found")
+    
+    for field, value in template_update.dict(exclude_unset=True).items():
+        setattr(db_template, field, value)
+    
+    db.commit()
+    db.refresh(db_template)
+    return db_template
+
+@app.delete("/communication-templates/{template_id}")
+async def delete_communication_template(
+    template_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_template = db.query(models.CommunicationTemplate).filter(models.CommunicationTemplate.id == template_id).first()
+    if db_template is None:
+        raise HTTPException(status_code=404, detail="Communication template not found")
+    
+    db.delete(db_template)
+    db.commit()
+    return {"message": "Communication template deleted successfully"}
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
